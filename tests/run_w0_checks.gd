@@ -136,6 +136,43 @@ func _check_validator(valid: Dictionary, invalid: Dictionary) -> void:
 	beast["appearance"]["humanoid"] = false
 	_check(_has(_codes(ValidatorScript.validate(beast)), "humanoid"), "非人形应拒绝")
 
+	var negated := valid.duplicate(true)
+	negated["ultimate"]["effect"] = "短时间连斩，不能重置大招。"
+	var negated_codes := _codes(ValidatorScript.validate(negated))
+	_check(ValidatorScript.validate(negated).get("ok", false), "否定句不应误伤黑名单：%s" % str(negated_codes))
+	_check(not _has(negated_codes, "blacklist"), "「不能重置大招」不应报 blacklist")
+
+	var blatant := valid.duplicate(true)
+	blatant["ultimate"]["effect"] = "可以重置大招"
+	_check(_has(_codes(ValidatorScript.validate(blatant)), "blacklist"), "肯定句里的重置大招仍应拒绝")
+
+	var prose := valid.duplicate(true)
+	prose["skills"][0]["effect"] = "这一击同时吃满力量、速度、射程。"
+	prose["skills"][0]["primary_stats"] = ["power"]
+	_check(_has(_codes(ValidatorScript.validate(prose)), "triple_dip"), "文案三连吃应拒绝")
+
+	var bad_kind := valid.duplicate(true)
+	bad_kind["skills"][0]["kind"] = "explode"
+	_check(_has(_codes(ValidatorScript.validate(bad_kind)), "skill_kind"), "未知 kind 应拒绝")
+
+	var no_summary := valid.duplicate(true)
+	no_summary["appearance"]["summary"] = ""
+	_check(_has(_codes(ValidatorScript.validate(no_summary)), "appearance"), "空外形简述应拒绝")
+
+	var schema = JSON.parse_string(FileAccess.get_file_as_string("res://docs/stand_card.schema.json"))
+	var stat_props: Dictionary = schema["properties"]["stats"]["properties"]
+	_check(stat_props.size() == ValidatorScript.STAT_KEYS.size(), "schema 六维数量应与校验器一致")
+	for key in ValidatorScript.STAT_KEYS:
+		_check(stat_props.has(key), "schema 缺少属性 " + key)
+	var cost_enum: Array = schema["$defs"]["ultimate"]["allOf"][1]["properties"]["cost"]["enum"]
+	_check(cost_enum.size() == ValidatorScript.ULTIMATE_COSTS.size(), "大招代价枚举数量应一致")
+	for cost in ValidatorScript.ULTIMATE_COSTS:
+		_check(cost in cost_enum, "schema 缺少代价 " + cost)
+	var kind_enum: Array = schema["$defs"]["skill"]["properties"]["kind"]["enum"]
+	_check(kind_enum.size() == ValidatorScript.SKILL_KINDS.size(), "技能 kind 枚举数量应一致")
+	for kind in ValidatorScript.SKILL_KINDS:
+		_check(kind in kind_enum, "schema 缺少 kind " + kind)
+
 
 func _check_library(valid: Dictionary, invalid: Dictionary) -> void:
 	_check(LibraryScript.MAX_KEPT == 3, "保留上限必须是 3")
@@ -168,13 +205,16 @@ func _check_stubs() -> void:
 	var combat = CombatScript.new()
 	var order: PackedStringArray = combat.resolve_order()
 	_check(order.size() == 6 and order[0] == "range" and order[5] == "growth", "结算顺序应为射程到成长")
-	_check(not combat.resolve_hit({}, {}).get("ok", true), "W0 不应真的结算伤害")
+	var empty_hit: Dictionary = combat.resolve_hit({}, {})
+	_check(empty_hit.has("ok") and not empty_hit.get("ok", true), "空技能不能结算为命中")
 	combat.free()
 	var net = NetScript.new()
-	_check(not net.host_room().get("ok", true), "主机房间仍是占位")
+	_check(net.has_method("host_room") and net.has_method("join_room") and net.has_method("close_room"), "房间应提供主机、加入和关闭")
 	net.free()
 	var ai = AiScript.new()
-	_check(not ai.generate_from_prompt("test").get("ok", true), "提示词出卡仍是占位")
+	_check(ai.has_method("generate_from_prompt"), "出卡入口应存在")
+	var generated: Dictionary = ai.generate_from_prompt("", false)
+	_check(not generated.get("ok", true), "空提示词应失败")
 	ai.free()
 
 

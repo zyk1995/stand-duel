@@ -1,15 +1,17 @@
 extends CharacterBody3D
-## 占位人形。W0 只做地面移动和朝向，不放技能。
+## 模板人形。WASD 移动；进局后 Q / E 小技能，R 大招。进场面板还开着时不放技能。
 
 const SPEED := 6.0
 const GRAVITY := 20.0
 
 var _forward := Vector3(0, 0, -1)
 var _right := Vector3(1, 0, 0)
+var _held: Dictionary = {}
 
 
 func _physics_process(delta: float) -> void:
 	_read_camera_axes()
+	_poll_skills()
 	var wish := _wish_direction()
 	var locked: Variant = _locked_focus()
 	if locked is Vector3:
@@ -67,6 +69,32 @@ func _locked_focus() -> Variant:
 	if cam == null or not cam.has_method("locked_point"):
 		return null
 	return cam.locked_point()
+
+
+func _poll_skills() -> void:
+	var parent_node := get_parent()
+	if parent_node == null:
+		return
+	var entry := parent_node.get_node_or_null("Entry")
+	if entry != null and entry.visible:
+		return
+	_edge(KEY_Q, 0)
+	_edge(KEY_E, 1)
+	_edge(KEY_R, 2)
+
+
+func _edge(key: Key, index: int) -> void:
+	var down := Input.is_physical_key_pressed(key)
+	var was := bool(_held.get(key, false))
+	_held[key] = down
+	if not down or was:
+		return
+	var parent_node := get_parent()
+	if parent_node == null:
+		return
+	var duel = parent_node.get_node_or_null("Match")
+	if duel != null and duel.has_method("local_cast"):
+		duel.local_cast(index)
 
 
 func _camera() -> Node:

@@ -2,11 +2,14 @@ extends RefCounted
 class_name StandValidator
 ## 替身卡运行时校验，对齐 docs/stand_card.schema.json 与策划书硬规则。
 ## 不内嵌通用 JSON Schema 引擎。schema 改字段时这里要一起改。
-## 黑名单按子串匹配，否定句（例如「不能重置大招」）也可能被拒，这是 W0 的已知缺口。
-## 只检查 primary_stats 是否同时包含力量、速度、射程；文案里写了三连吃但没写进主属性时，这里不会拦。
+## 黑名单仍是子串，但命中点前面 12 个字内若有否定词（不能 / 不会 / 不是…）则放过这一处。
+## 窗口很短，绕开否定或把违禁词写远一点仍会命中；这是竖切取舍，不是完整句法分析。
+## 三连吃既看 primary_stats，也看效果文案是否同时写到力量、速度、射程。
 
 const STAT_KEYS: PackedStringArray = ["power", "speed", "range", "stamina", "precision", "growth"]
 const ULTIMATE_COSTS: PackedStringArray = ["stun", "self_damage", "window", "reveal"]
+const SKILL_KINDS: PackedStringArray = ["damage", "control", "dash", "shield"]
+const NEGATIONS: PackedStringArray = ["不能", "不会", "不可", "无法", "禁止", "并非", "不是", "绝不", "没有", "永不", "勿", "别"]
 const BLACKLIST: PackedStringArray = [
 	"秒杀",
 	"无视掩体",
@@ -118,7 +121,7 @@ func _check_ultimate(ultimate) -> void:
 		_err("ultimate_cost", "大招代价 %s 不在允许列表" % cost)
 
 
-func _check_skill(skill, path: String, is_ultimate: bool) -> void:
+func _check_skill(skill, path: String, _is_ultimate: bool) -> void:
 	if typeof(skill) != TYPE_DICTIONARY:
 		_err("skills", "%s 不是对象" % path)
 		return
@@ -129,8 +132,13 @@ func _check_skill(skill, path: String, is_ultimate: bool) -> void:
 		if not _is_non_negative_number(skill.get(field, null)):
 			_err("skills", "%s.%s 必须是 ≥ 0 的数" % [path, field])
 	_check_primary(skill.get("primary_stats", null), path)
-	if is_ultimate:
-		return
+	if skill.has("kind"):
+		var kind := str(skill.get("kind"))
+		if not (kind in SKILL_KINDS):
+			_err("skill_kind", "%s.kind 无法识别" % path)
+	var effect := str(skill.get("effect", ""))
+	if "力量" in effect and "速度" in effect and "射程" in effect:
+		_err("triple_dip", "%s 文案同时写到力量、速度、射程" % path)
 
 
 func _check_primary(stats_value, path: String) -> void:
@@ -169,6 +177,8 @@ func _check_appearance(appearance) -> void:
 		return
 	if appearance.get("humanoid", false) != true:
 		_err("humanoid", "替身必须是人形")
+	if typeof(appearance.get("summary", null)) != TYPE_STRING or str(appearance.get("summary")).strip_edges().is_empty():
+		_err("appearance", "外形缺少简述")
 	var height = appearance.get("height_m", null)
 	if not _is_number(height):
 		_err("height", "身高必须是数字")
@@ -193,8 +203,36 @@ func _check_blacklist(card: Dictionary) -> void:
 	_collect_strings(card, texts)
 	var joined := "\n".join(texts)
 	for phrase in BLACKLIST:
-		if phrase in joined:
+		if _phrase_hits(joined, phrase):
 			_err("blacklist", "命中黑名单：%s" % phrase)
+
+
+func _phrase_hits(text: String, phrase: String) -> bool:
+	var from := 0
+	var step := phrase.length()
+	if step < 1:
+		return false
+	while true:
+		var idx := text.find(phrase, from)
+		if idx < 0:
+			return false
+		if not _negated_before(text, idx):
+			return true
+		from = idx + step
+	return false
+
+
+func _negated_before(text: String, idx: int) -> bool:
+	var start := idx - 12
+	if start < 0:
+		start = 0
+	var prefix := text.substr(start, idx - start)
+	for mark in NEGATIONS:
+		if mark in prefix:
+			return true
+	if prefix.ends_with("不"):
+		return true
+	return false
 
 
 func _collect_strings(value, into: PackedStringArray) -> void:

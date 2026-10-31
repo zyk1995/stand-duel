@@ -1,24 +1,13 @@
 extends Node
 class_name CombatStub
-## W0 不结算伤害。顺序与策划书一致：射程 → 精密 → 力量 → 持续力 → 速度 → 成长。
+## 场景上的结算入口。公式在 combat_rules.gd，方便无头测试不实例化节点。
 
-const RESOLVE_ORDER: PackedStringArray = [
-	"range",
-	"precision",
-	"power",
-	"stamina",
-	"speed",
-	"growth",
-]
+const Rules = preload("res://gameplay/combat_rules.gd")
 
 
 func resolve_order() -> PackedStringArray:
-	return RESOLVE_ORDER
+	return Rules.resolve_order()
 
 
-func resolve_hit(_attacker_stats: Dictionary, _skill: Dictionary) -> Dictionary:
-	return {
-		"ok": false,
-		"code": "not_implemented",
-		"message": "战斗结算留到 W1",
-	}
+func resolve_hit(attacker_stats: Dictionary, skill: Dictionary, context: Dictionary = {}) -> Dictionary:
+	return Rules.resolve(attacker_stats, skill, context)

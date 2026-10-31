@@ -1,0 +1,69 @@
+{
+  "name": "镜步旅人",
+  "blurb": "以节奏换位与短促斩击近战的冷静决斗者。",
+  "stats": {
+    "power": 4,
+    "speed": 4,
+    "range": 2,
+    "stamina": 3,
+    "precision": 3,
+    "growth": 2
+  },
+  "skills": [
+    {
+      "name": "侧闪斩",
+      "effect": "短距位移后对锁定目标造成一次近战伤害。",
+      "kind": "dash",
+      "primary_stats": [
+        "speed"
+      ],
+      "condition": "有锁定目标",
+      "range": 4.0,
+      "cooldown": 5.0,
+      "duration": 0.3,
+      "cover_interact": "位移不穿全掩；落地后攻击受全掩阻挡"
+    },
+    {
+      "name": "破势刺",
+      "effect": "直线刺击，命中造成伤害并短暂减速。",
+      "kind": "damage",
+      "primary_stats": [
+        "power",
+        "precision"
+      ],
+      "condition": "面向目标",
+      "range": 6.0,
+      "cooldown": 6.0,
+      "duration": 0.2,
+      "cover_interact": "全掩完全阻挡；半掩吃精密判定"
+    }
+  ],
+  "ultimate": {
+    "name": "镜域连斩",
+    "effect": "短暂加速后连续两次斩击，第二次伤害提高。",
+    "kind": "damage",
+    "primary_stats": [
+      "power",
+      "speed"
+    ],
+    "condition": "大招就绪",
+    "range": 5.0,
+    "cooldown": 22.0,
+    "duration": 1.2,
+    "cover_interact": "斩击弹道受全掩阻挡",
+    "cost": "window"
+  },
+  "passive": {
+    "name": "节拍余韵",
+    "effect": "成功闪避或位移结束后 1 秒内下次小技能冷却减少 10%。",
+    "trigger": "conditional"
+  },
+  "appearance": {
+    "humanoid": true,
+    "height_m": 1.78,
+    "summary": "成年男性人形，风衣与轻甲，体型符合普通成人。"
+  },
+  "avatar_prompt": "front portrait of a calm adult male duelists in windbreaker, game character art, square crop",
+  "turnaround_prompt": "orthographic front side back turnaround A-pose adult human male, consistent proportions, plain background",
+  "model_spec": "1.78m humanoid, standard skeleton, mid-poly, human AABB only"
+}

@@ -1,0 +1,69 @@
+{
+  "name": "灭世巨神",
+  "blurb": "非法测试卡",
+  "stats": {
+    "power": 5,
+    "speed": 5,
+    "range": 5,
+    "stamina": 5,
+    "precision": 5,
+    "growth": 5
+  },
+  "skills": [
+    {
+      "name": "秒杀光",
+      "effect": "无视掩体全图秒杀",
+      "kind": "damage",
+      "primary_stats": [
+        "power",
+        "speed",
+        "range"
+      ],
+      "condition": "无",
+      "range": 999,
+      "cooldown": 0,
+      "duration": 0,
+      "cover_interact": "无视掩体"
+    },
+    {
+      "name": "占位",
+      "effect": "无",
+      "kind": "shield",
+      "primary_stats": [
+        "stamina"
+      ],
+      "condition": "无",
+      "range": 1,
+      "cooldown": 1,
+      "duration": 1,
+      "cover_interact": "无"
+    }
+  ],
+  "ultimate": {
+    "name": "灭世",
+    "effect": "无敌并重置大招",
+    "kind": "damage",
+    "primary_stats": [
+      "power"
+    ],
+    "condition": "无",
+    "range": 999,
+    "cooldown": 1,
+    "duration": 10,
+    "cover_interact": "无视",
+    "cost": "stun"
+  },
+  "passive": {
+    "name": "免死",
+    "effect": "免死",
+    "trigger": "always"
+  },
+  "appearance": {
+    "humanoid": false,
+    "height_m": 12.0,
+    "summary": "巨人"
+  },
+  "avatar_prompt": "x",
+  "turnaround_prompt": "x",
+  "model_spec": "x"
+}

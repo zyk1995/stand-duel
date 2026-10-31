@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stand-duel.local/stand_card.schema.json",
+  "title": "StandCard",
+  "type": "object",
+  "required": [
+    "name", "blurb", "stats", "skills", "ultimate", "passive",
+    "appearance", "avatar_prompt", "turnaround_prompt", "model_spec"
+  ],
+  "properties": {
+    "name": { "type": "string", "minLength": 1, "maxLength": 32 },
+    "blurb": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "stats": {
+      "type": "object",
+      "required": ["power", "speed", "range", "stamina", "precision", "growth"],
+      "properties": {
+        "power": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "speed": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "range": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "stamina": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "precision": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "growth": { "type": "integer", "minimum": 1, "maximum": 5 }
+      },
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "ultimate": { "$ref": "#/$defs/ultimate" },
+    "passive": {
+      "type": "object",
+      "required": ["name", "effect", "trigger"],
+      "properties": {
+        "name": { "type": "string" },
+        "effect": { "type": "string" },
+        "trigger": { "type": "string", "enum": ["always", "conditional"] }
+      }
+    },
+    "appearance": {
+      "type": "object",
+      "required": ["humanoid", "height_m", "summary"],
+      "properties": {
+        "humanoid": { "const": true },
+        "height_m": { "type": "number", "minimum": 1.5, "maximum": 2.0 },
+        "summary": { "type": "string" }
+      }
+    },
+    "avatar_prompt": { "type": "string", "minLength": 1 },
+    "turnaround_prompt": { "type": "string", "minLength": 1 },
+    "model_spec": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "required": ["name", "effect", "primary_stats", "condition", "range", "cooldown", "duration", "cover_interact"],
+      "properties": {
+        "name": { "type": "string" },
+        "effect": { "type": "string" },
+        "kind": { "type": "string", "enum": ["damage", "control", "dash", "shield"] },
+        "primary_stats": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "type": "string", "enum": ["power", "speed", "range", "stamina", "precision", "growth"] }
+        },
+        "condition": { "type": "string" },
+        "range": { "type": "number", "minimum": 0 },
+        "cooldown": { "type": "number", "minimum": 0 },
+        "duration": { "type": "number", "minimum": 0 },
+        "cover_interact": { "type": "string" }
+      }
+    },
+    "ultimate": {
+      "allOf": [
+        { "$ref": "#/$defs/skill" },
+        {
+          "type": "object",
+          "required": ["cost"],
+          "properties": {
+            "cost": { "type": "string", "enum": ["stun", "self_damage", "window", "reveal"] }
+          }
+        }
+      ]
+    }
+  }
+}

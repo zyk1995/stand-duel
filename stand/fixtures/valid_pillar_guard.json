@@ -1,0 +1,61 @@
+{
+  "name": "柱卫",
+  "blurb": "守在掩体旁，用中距离重击压住来者。",
+  "stats": {
+    "power": 3,
+    "speed": 2,
+    "range": 4,
+    "stamina": 4,
+    "precision": 3,
+    "growth": 2
+  },
+  "skills": [
+    {
+      "name": "拒马击",
+      "effect": "对前方目标造成一次中距离重击。",
+      "kind": "damage",
+      "primary_stats": ["power"],
+      "condition": "面向目标",
+      "range": 8.0,
+      "cooldown": 5.0,
+      "duration": 0.25,
+      "cover_interact": "全掩完全阻挡；半掩按精密判定"
+    },
+    {
+      "name": "立盾",
+      "effect": "短时间举起护盾，挡住下一次正面小技能。",
+      "kind": "shield",
+      "primary_stats": ["stamina"],
+      "condition": "未处于硬直",
+      "range": 2.0,
+      "cooldown": 6.0,
+      "duration": 1.0,
+      "cover_interact": "自身视为半掩"
+    }
+  ],
+  "ultimate": {
+    "name": "崩柱",
+    "effect": "砸下石柱，对射程内目标造成重击。",
+    "kind": "damage",
+    "primary_stats": ["power", "range"],
+    "condition": "大招就绪",
+    "range": 9.0,
+    "cooldown": 20.0,
+    "duration": 0.8,
+    "cover_interact": "全掩完全阻挡",
+    "cost": "stun"
+  },
+  "passive": {
+    "name": "守势",
+    "effect": "站立不动超过 1 秒时，下一次受击的击退距离缩短。",
+    "trigger": "conditional"
+  },
+  "appearance": {
+    "humanoid": true,
+    "height_m": 1.86,
+    "summary": "成年男性人形，厚肩甲与短柱，体型符合普通成人。"
+  },
+  "avatar_prompt": "front portrait of an adult armored guard with a short pillar, game character art",
+  "turnaround_prompt": "orthographic front side back turnaround A-pose adult human, consistent proportions",
+  "model_spec": "1.86m humanoid, standard skeleton, mid-poly, human AABB only"
+}

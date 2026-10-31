@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/lock_on_camera.gd" id="2_camera"]
@@ -6,6 +6,10 @@
 [ext_resource type="Script" path="res://gameplay/combat_stub.gd" id="4_combat"]
 [ext_resource type="Script" path="res://net/net_room.gd" id="5_net"]
 [ext_resource type="Script" path="res://ai/stand_generator.gd" id="6_ai"]
+[ext_resource type="Script" path="res://gameplay/arena_setup.gd" id="7_arena"]
+[ext_resource type="Script" path="res://gameplay/training_ai.gd" id="8_train"]
+[ext_resource type="Script" path="res://gameplay/match_director.gd" id="9_match"]
+[ext_resource type="Script" path="res://ui/entry_ui.gd" id="10_entry"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
 radius = 0.3
@@ -108,6 +112,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
 mesh = SubResource("SphereMesh_head")
 surface_material_override/0 = SubResource("StandardMaterial3D_target")
 
+[node name="TrainingAI" type="Node" parent="DummyTarget"]
+script = ExtResource("8_train")
+
 [node name="FarTarget" type="Node3D" parent="." groups=["lock_target"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -24)
 metadata/display_name = "远桩"
@@ -128,14 +135,23 @@ script = ExtResource("5_net")
 [node name="AI" type="Node" parent="."]
 script = ExtResource("6_ai")
 
+[node name="Arena" type="Node3D" parent="."]
+script = ExtResource("7_arena")
+
+[node name="Match" type="Node" parent="."]
+script = ExtResource("9_match")
+
+[node name="Entry" type="CanvasLayer" parent="."]
+script = ExtResource("10_entry")
+
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")
 
 [node name="Label" type="Label" parent="HUD"]
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 720.0
-offset_bottom = 48.0
-text = "替身对决 W0"
+offset_right = 680.0
+offset_bottom = 210.0
+text = "替身对决"
 
 [connection signal="lock_changed" from="LockOnCamera" to="HUD" method="_on_lock_changed"]

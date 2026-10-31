@@ -45,7 +45,7 @@
       "properties": {
         "humanoid": { "const": true },
         "height_m": { "type": "number", "minimum": 1.5, "maximum": 2.0 },
-        "summary": { "type": "string" }
+        "summary": { "type": "string", "minLength": 1 }
       }
     },
     "avatar_prompt": { "type": "string", "minLength": 1 },

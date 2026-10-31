@@ -1,6 +1,7 @@
 extends Camera3D
 ## 锁定第三人称。默认锁最近目标；meta hurt_priority 越大越优先，用来表示「刚受伤」。
-## 每帧扫描 lock_target 组。W0 目标极少。人数上去后应改成进组/出组时维护候选，避免每帧分配数组。
+## W4 复核：竖切最多 6 人，仍每帧取 lock_target 组。组很小，新建数组的开销可以忽略。
+## 若以后超过这一小组人，再改成进组 / 出组时维护候选，不要每帧分配。
 
 signal lock_changed(target_name: String)
 

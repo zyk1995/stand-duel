@@ -1,0 +1,141 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://gameplay/lock_on_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://ui/hud.gd" id="3_hud"]
+[ext_resource type="Script" path="res://gameplay/combat_stub.gd" id="4_combat"]
+[ext_resource type="Script" path="res://net/net_room.gd" id="5_net"]
+[ext_resource type="Script" path="res://ai/stand_generator.gd" id="6_ai"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.35, 0.55, 0.85, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.22
+height = 0.44
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(48, 1, 48)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(48, 1, 48)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.22, 0.26, 0.22, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_target"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_target"]
+albedo_color = Color(0.85, 0.45, 0.2, 1)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+
+[sub_resource type="Sky" id="Sky_sky"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_env"]
+background_mode = 2
+sky = SubResource("Sky_sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.5, 0.55, 1)
+ambient_light_energy = 0.55
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866, 0, -0.866, 0.5, 0, 10, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+surface_material_override/0 = SubResource("StandardMaterial3D_ground")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+script = ExtResource("1_player")
+
+[node name="Body" type="MeshInstance3D" parent="Player"]
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("StandardMaterial3D_body")
+
+[node name="Head" type="MeshInstance3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_body")
+
+[node name="Collision" type="CollisionShape3D" parent="Player"]
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Combat" type="Node" parent="Player"]
+script = ExtResource("4_combat")
+
+[node name="LockOnCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 6)
+current = true
+fov = 70.0
+script = ExtResource("2_camera")
+
+[node name="DummyTarget" type="Node3D" parent="." groups=["lock_target"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -6)
+metadata/display_name = "训练桩"
+metadata/hurt_priority = 0.0
+
+[node name="Body" type="MeshInstance3D" parent="DummyTarget"]
+mesh = SubResource("CapsuleMesh_target")
+surface_material_override/0 = SubResource("StandardMaterial3D_target")
+
+[node name="Head" type="MeshInstance3D" parent="DummyTarget"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_target")
+
+[node name="FarTarget" type="Node3D" parent="." groups=["lock_target"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -24)
+metadata/display_name = "远桩"
+metadata/hurt_priority = 0.0
+
+[node name="Body" type="MeshInstance3D" parent="FarTarget"]
+mesh = SubResource("CapsuleMesh_target")
+surface_material_override/0 = SubResource("StandardMaterial3D_target")
+
+[node name="Head" type="MeshInstance3D" parent="FarTarget"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_target")
+
+[node name="Net" type="Node" parent="."]
+script = ExtResource("5_net")
+
+[node name="AI" type="Node" parent="."]
+script = ExtResource("6_ai")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
+
+[node name="Label" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 720.0
+offset_bottom = 48.0
+text = "替身对决 W0"
+
+[connection signal="lock_changed" from="LockOnCamera" to="HUD" method="_on_lock_changed"]
